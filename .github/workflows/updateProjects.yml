@@ -12,5 +12,5 @@ jobs:
       - uses: actions/github-script@v8
         with:
           script: |
-            const script = require('./path/to/script.js')
+            const script = require('./onPush.js')
             console.log(script({github, context}))
