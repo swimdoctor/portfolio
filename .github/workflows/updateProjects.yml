@@ -1,3 +1,5 @@
+name: Update Projects on Push
+
 on:
   push:
     branches: ["main"]
