@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Dylan's 235 Page</title>
+    <title>Dylan | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles/mainStyle.css">
@@ -12,17 +12,72 @@
 </head>
 
 <body>
-    <header>
-        
+    <header class="site-header">
+        <a class="site-logo" href="index.html">Dylan<span>.</span></a>
+        <nav aria-label="Main navigation">
+            <a href="#about">About</a>
+            <a href="projects/index.html">Projects</a>
+        </nav>
     </header>
 
     <main>
-        <section>
-            <div class="project">
-		        <img src="images/CraftUp.png" alt="Craft Up Logo">
-                <h1>Craft Up</h1>"
-		        <h3>April 2024</h3>
-		        <h2 class = "description"> A simple Survival Crafting game made in Monogame </h2>
+        <section class="hero" id="about">
+            <p class="eyebrow">Developer, designer, and curious builder</p>
+            <h1>Hi, I’m Dylan.<br><em>I make things to learn.</em></h1>
+            <p class="hero-copy">This is a growing collection of games, experiments, and projects built from questions I could not leave unanswered.</p>
+            <a class="text-link" href="#recent-projects">Explore my work <span aria-hidden="true">↘</span></a>
+        </section>
+
+        <section class="project-section" id="recent-projects" aria-labelledby="recent-heading">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Selected work</p>
+                    <h2 id="recent-heading">Recent projects</h2>
+                </div>
+                <a class="text-link" href="projects/index.html">See all projects <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="project-grid project-grid--featured">
+                <!-- project-cards:start -->
+                <a class="project-card" data-tags="games,c#,monogame,class project" href="projects/CraftUp.html">
+                    <img class="project-card__image" src="images/CraftUp.png" alt="Craft Up">
+                    <div class="project-card__content">
+                        <h2>Craft Up</h2>
+                        <p>A simple survival crafting game made in MonoGame.</p>
+                        <ul class="tag-list" aria-label="Project tags">
+                            <li>Games</li>
+                            <li>C#</li>
+                            <li>MonoGame</li>
+                            <li>Class Project</li>
+                        </ul>
+                    </div>
+                </a>
+                <a class="project-card" data-tags="machine learning,unity,c#,personal project" href="projects/SelfDrivingRacecars.html">
+                    <img class="project-card__image" src="images/SelfDrivingRacecars.svg" alt="Self-Driving Racecars with NEAT">
+                    <div class="project-card__content">
+                        <h2>Self-Driving Racecars with NEAT</h2>
+                        <p>An experiment in evolving autonomous racecars with NeuroEvolution of Augmenting Topologies.</p>
+                        <ul class="tag-list" aria-label="Project tags">
+                            <li>Machine Learning</li>
+                            <li>Unity</li>
+                            <li>C#</li>
+                            <li>Personal Project</li>
+                        </ul>
+                    </div>
+                </a>
+                <a class="project-card" data-tags="godot,gdscript,game,class project" href="projects/Dadatothmo.html">
+                    <img class="project-card__image" src="images/Dadatothmo.svg" alt="Dadatothmo">
+                    <div class="project-card__content">
+                        <h2>Dadatothmo</h2>
+                        <p>A Godot game project built as part of a class project.</p>
+                        <ul class="tag-list" aria-label="Project tags">
+                            <li>Godot</li>
+                            <li>GDScript</li>
+                            <li>Game</li>
+                            <li>Class Project</li>
+                        </ul>
+                    </div>
+                </a>
+                <!-- project-cards:end -->
             </div>
         </section>
     </main>

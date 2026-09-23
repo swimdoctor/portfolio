@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Projects | Dylan's Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="../styles/mainStyle.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="site-logo" href="../index.html">Dylan<span>.</span></a>
+        <nav aria-label="Main navigation">
+            <a href="../index.html#about">About</a>
+            <a href="index.html" aria-current="page">Projects</a>
+        </nav>
+    </header>
+
+    <main class="projects-page">
+        <section class="page-intro">
+            <p class="eyebrow">The archive</p>
+            <h1>Projects</h1>
+            <p>A collection of things I have built, tested, and learned from.</p>
+        </section>
+        <div class="project-toolbar" aria-label="Project filters">
+            <!-- project-filters:start -->
+            <span class="filter-label">Filter by tag</span>
+            <button class="filter-button is-active" type="button" data-filter="all">All projects | 3</button>
+            <button class="filter-button" type="button" data-filter="c#">C# | 2</button>
+            <button class="filter-button" type="button" data-filter="class project">Class Project | 2</button>
+            <button class="filter-button" type="button" data-filter="game">Game | 1</button>
+            <button class="filter-button" type="button" data-filter="gdscript">GDScript | 1</button>
+            <button class="filter-button" type="button" data-filter="games">Games | 1</button>
+            <button class="filter-button" type="button" data-filter="godot">Godot | 1</button>
+            <button class="filter-button" type="button" data-filter="machine learning">Machine Learning | 1</button>
+            <button class="filter-button" type="button" data-filter="monogame">MonoGame | 1</button>
+            <button class="filter-button" type="button" data-filter="personal project">Personal Project | 1</button>
+            <button class="filter-button" type="button" data-filter="unity">Unity | 1</button>
+            <!-- project-filters:end -->
+        </div>
+        <div class="project-grid" id="project-grid">
+            <!-- project-cards:start -->
+            <a class="project-card" data-tags="games,c#,monogame,class project" href="CraftUp.html">
+                <img class="project-card__image" src="../images/CraftUp.png" alt="Craft Up">
+                <div class="project-card__content">
+                    <h2>Craft Up</h2>
+                    <p>A simple survival crafting game made in MonoGame.</p>
+                    <ul class="tag-list" aria-label="Project tags">
+                        <li>Games</li>
+                        <li>C#</li>
+                        <li>MonoGame</li>
+                        <li>Class Project</li>
+                    </ul>
+                </div>
+            </a>
+            <a class="project-card" data-tags="machine learning,unity,c#,personal project" href="SelfDrivingRacecars.html">
+                <img class="project-card__image" src="../images/SelfDrivingRacecars.svg" alt="Self-Driving Racecars with NEAT">
+                <div class="project-card__content">
+                    <h2>Self-Driving Racecars with NEAT</h2>
+                    <p>An experiment in evolving autonomous racecars with NeuroEvolution of Augmenting Topologies.</p>
+                    <ul class="tag-list" aria-label="Project tags">
+                        <li>Machine Learning</li>
+                        <li>Unity</li>
+                        <li>C#</li>
+                        <li>Personal Project</li>
+                    </ul>
+                </div>
+            </a>
+            <a class="project-card" data-tags="godot,gdscript,game,class project" href="Dadatothmo.html">
+                <img class="project-card__image" src="../images/Dadatothmo.svg" alt="Dadatothmo">
+                <div class="project-card__content">
+                    <h2>Dadatothmo</h2>
+                    <p>A Godot game project built as part of a class project.</p>
+                    <ul class="tag-list" aria-label="Project tags">
+                        <li>Godot</li>
+                        <li>GDScript</li>
+                        <li>Game</li>
+                        <li>Class Project</li>
+                    </ul>
+                </div>
+            </a>
+            <!-- project-cards:end -->
+        </div>
+    </main>
+
+    <script>
+        const filterButtons = document.querySelectorAll('.filter-button');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterButtons.forEach((button) => button.addEventListener('click', () => {
+            const filter = button.dataset.filter;
+            filterButtons.forEach((item) => item.classList.toggle('is-active', item === button));
+            projectCards.forEach((card) => {
+                card.hidden = filter !== 'all' && !card.dataset.tags.split(',').includes(filter);
+            });
+        }));
+    </script>
+</body>
+
+</html>

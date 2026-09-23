@@ -3,25 +3,43 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Craft Up</title>
+    <title>Craft Up | Dylan's Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="styles/mainStyle.css">
+    <link rel="stylesheet" href="../styles/mainStyle.css">
     <link rel="icon" type="image/png" href="images/favicon_32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="images/favicon_16x16.png" sizes="16x16" />
 </head>
 
 <body>
-    <header>
-        
+    <header class="site-header">
+        <a class="site-logo" href="../index.html">Dylan<span>.</span></a>
+        <nav aria-label="Main navigation">
+            <a href="../index.html#about">About</a>
+            <a href="index.html">Projects</a>
+        </nav>
     </header>
 
     <main>
-        <h1>Craft Up</h1>
-		<h3>April 2024</h3>
-		<img src="../images/CraftUp.png" alt="Craft Up Logo">
-		<h2 id = description> A simple Survival Crafting game made in Monogame </h2>
-		<p>Craft Up started as a project in ...</p>
+        <article class="project-post">
+            <header class="project-post__header">
+                <p class="eyebrow">April 2024 · Game</p>
+                <h1>Craft Up</h1>
+                <p class="project-lede">A simple survival crafting game made in MonoGame.</p>
+                <ul class="tag-list" aria-label="Project tags">
+                    <li>Games</li>
+                    <li>C#</li>
+                    <li>MonoGame</li>
+                    <li>Class Project</li>
+                </ul>
+                <img class="project-post__image" src="../images/CraftUp.png" alt="Craft Up logo">
+            </header>
+            <div class="project-post__body">
+                <p>Craft Up started as a project in ...</p>
+                <h2>Overview</h2>
+                <p>This space will become the project brief, development notes, and postmortem as the portfolio grows.</p>
+            </div>
+        </article>
     </main>
 
     <footer>
