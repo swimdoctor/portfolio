@@ -34,6 +34,7 @@ h1, h2, p { margin-top: 0; }
 .section-heading h2, .page-intro h1 { font-size: 2.7rem; letter-spacing: -.06em; line-height: 1; margin-bottom: 0; }
 .project-grid { display: grid; gap: 24px; }
 .project-card { align-items: stretch; background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: minmax(180px, 260px) 1fr; overflow: hidden; transition: border-color .2s ease, transform .2s ease; }
+.project-card[hidden] { display: none; }
 .project-card:hover { border-color: var(--accent); transform: translateY(-4px); }
 .project-card__image { aspect-ratio: 1; background: #dfe5d8; display: block; height: 100%; object-fit: cover; width: 100%; }
 .project-card__content { align-self: center; padding: 30px 34px; }

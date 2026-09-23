@@ -3,6 +3,17 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="project-title" content="Craft Up">
+    <meta name="project-start-date" content="January 2024">
+    <meta name="project-end-date" content="May 2024">
+    <meta name="project-type" content="Game">
+    <meta name="project-description" content="A simple survival crafting game made in MonoGame.">
+    <meta name="project-image" content="../images/CraftUp.png">
+    <meta name="project-image-alt" content="Craft Up logo">
+    <meta name="project-tag" content="Game">
+    <meta name="project-tag" content="C#">
+    <meta name="project-tag" content="MonoGame">
+    <meta name="project-tag" content="Class Project">
     <title>Craft Up | Dylan's Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,16 +34,16 @@
     <main>
         <article class="project-post">
             <header class="project-post__header">
-                <p class="eyebrow">April 2024 · Game</p>
-                <h1>Craft Up</h1>
-                <p class="project-lede">A simple survival crafting game made in MonoGame.</p>
-                <ul class="tag-list" aria-label="Project tags">
-                    <li>Games</li>
+                <p class="eyebrow" data-project-field="eyebrow">April 2024 · Game</p>
+                <h1 data-project-field="title">Craft Up</h1>
+                <p class="project-lede" data-project-field="description">A simple survival crafting game made in MonoGame.</p>
+                <ul class="tag-list" aria-label="Project tags" data-project-field="tags">
+                    <li>Game</li>
                     <li>C#</li>
                     <li>MonoGame</li>
                     <li>Class Project</li>
                 </ul>
-                <img class="project-post__image" src="../images/CraftUp.png" alt="Craft Up logo">
+                <img class="project-post__image" data-project-field="image" src="../images/CraftUp.png" alt="Craft Up logo">
             </header>
             <div class="project-post__body">
                 <p>Craft Up started as a project in ...</p>
@@ -45,6 +56,7 @@
     <footer>
         
     </footer>
+    <script src="../scripts/projectPage.js"></script>
 </body>
 
 </html>

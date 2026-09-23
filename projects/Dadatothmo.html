@@ -4,6 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="project-title" content="Dadatothmo">
+    <meta name="project-start-date" content="August 2025">
+    <meta name="project-end-date" content="May 2026">
+    <meta name="project-type" content="Class Project">
+    <meta name="project-description" content="A Godot game project built as part of a class project.">
+    <meta name="project-image" content="../images/Dadatothmo.svg">
+    <meta name="project-image-alt" content="Dadatothmo placeholder artwork">
+    <meta name="project-tag" content="Godot">
+    <meta name="project-tag" content="GDScript">
+    <meta name="project-tag" content="Game">
+    <meta name="project-tag" content="Class Project">
     <title>Dadatothmo | Dylan's Portfolio</title>
     <link rel="stylesheet" href="../styles/mainStyle.css">
 </head>
@@ -20,16 +31,16 @@
     <main>
         <article class="project-post">
             <header class="project-post__header">
-                <p class="eyebrow">August 2025 - May 2026 · Class project</p>
-                <h1>Dadatothmo</h1>
-                <p class="project-lede">A Godot game project built as part of a class project.</p>
-                <ul class="tag-list" aria-label="Project tags">
+                <p class="eyebrow" data-project-field="eyebrow">August 2025 - May 2026 · Class project</p>
+                <h1 data-project-field="title">Dadatothmo</h1>
+                <p class="project-lede" data-project-field="description">A Godot game project built as part of a class project.</p>
+                <ul class="tag-list" aria-label="Project tags" data-project-field="tags">
                     <li>Godot</li>
                     <li>GDScript</li>
                     <li>Game</li>
                     <li>Class Project</li>
                 </ul>
-                <img class="project-post__image" src="../images/Dadatothmo.svg" alt="Dadatothmo placeholder artwork">
+                <img class="project-post__image" data-project-field="image" src="../images/Dadatothmo.svg" alt="Dadatothmo placeholder artwork">
             </header>
             <div class="project-post__body">
                 <p>Project notes coming soon.</p>
@@ -38,6 +49,7 @@
             </div>
         </article>
     </main>
+    <script src="../scripts/projectPage.js"></script>
 </body>
 
 </html>

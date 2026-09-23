@@ -28,28 +28,27 @@
         <div class="project-toolbar" aria-label="Project filters">
             <!-- project-filters:start -->
             <span class="filter-label">Filter by tag</span>
-            <button class="filter-button is-active" type="button" data-filter="all">All projects | 3</button>
-            <button class="filter-button" type="button" data-filter="c#">C# | 2</button>
-            <button class="filter-button" type="button" data-filter="class project">Class Project | 2</button>
-            <button class="filter-button" type="button" data-filter="game">Game | 1</button>
-            <button class="filter-button" type="button" data-filter="gdscript">GDScript | 1</button>
-            <button class="filter-button" type="button" data-filter="games">Games | 1</button>
-            <button class="filter-button" type="button" data-filter="godot">Godot | 1</button>
-            <button class="filter-button" type="button" data-filter="machine learning">Machine Learning | 1</button>
-            <button class="filter-button" type="button" data-filter="monogame">MonoGame | 1</button>
-            <button class="filter-button" type="button" data-filter="personal project">Personal Project | 1</button>
-            <button class="filter-button" type="button" data-filter="unity">Unity | 1</button>
+            <button class="filter-button is-active" type="button" aria-pressed="true" data-filter="all">All projects | 3</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="c#">C# | 2</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="class project">Class Project | 2</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="game">Game | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="gdscript">GDScript | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="godot">Godot | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="machine learning">Machine Learning | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="monogame">MonoGame | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="personal project">Personal Project | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-filter="unity">Unity | 1</button>
             <!-- project-filters:end -->
         </div>
         <div class="project-grid" id="project-grid">
             <!-- project-cards:start -->
-            <a class="project-card" data-tags="games,c#,monogame,class project" href="CraftUp.html">
+            <a class="project-card" data-tags="game,c#,monogame,class project" href="CraftUp.html">
                 <img class="project-card__image" src="../images/CraftUp.png" alt="Craft Up">
                 <div class="project-card__content">
                     <h2>Craft Up</h2>
                     <p>A simple survival crafting game made in MonoGame.</p>
                     <ul class="tag-list" aria-label="Project tags">
-                        <li>Games</li>
+                        <li>Game</li>
                         <li>C#</li>
                         <li>MonoGame</li>
                         <li>Class Project</li>
@@ -87,16 +86,30 @@
     </main>
 
     <script>
-        const filterButtons = document.querySelectorAll('.filter-button');
         const projectCards = document.querySelectorAll('.project-card');
+        const filterToolbar = document.querySelector('.project-toolbar');
 
-        filterButtons.forEach((button) => button.addEventListener('click', () => {
-            const filter = button.dataset.filter;
-            filterButtons.forEach((item) => item.classList.toggle('is-active', item === button));
+        const applyProjectFilter = (filter) => {
             projectCards.forEach((card) => {
-                card.hidden = filter !== 'all' && !card.dataset.tags.split(',').includes(filter);
+                const tags = card.dataset.tags.split(',').map((tag) => tag.trim().toLowerCase());
+                card.hidden = filter !== 'all' && !tags.includes(filter);
             });
-        }));
+        };
+
+        filterToolbar.addEventListener('click', (event) => {
+            const button = event.target.closest('.filter-button');
+            if (!button) return;
+
+            const filter = button.dataset.filter.trim().toLowerCase();
+            filterToolbar.querySelectorAll('.filter-button').forEach((item) => {
+                const isActive = item === button;
+                item.classList.toggle('is-active', isActive);
+                item.setAttribute('aria-pressed', isActive);
+            });
+            applyProjectFilter(filter);
+        });
+
+        filterToolbar.querySelector('.filter-button.is-active')?.setAttribute('aria-pressed', 'true');
     </script>
 </body>
 

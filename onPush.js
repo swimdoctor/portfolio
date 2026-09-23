@@ -9,13 +9,16 @@ module.exports = ({ github, context }) => {
 		.replace(/>/g, '&gt;')
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&#039;');
+	const metadata = (source, name) => source.match(new RegExp(`<meta[^>]+name=["']${name}["'][^>]+content=["']([^"']*)["']`, 'i'))?.[1].trim() || '';
 
 	const projectData = projects.map((id) => {
 		const source = read(`projects/${id}.html`);
-		const title = source.match(/<h1>([\s\S]*?)<\/h1>/i)?.[1].trim() || id;
-		const description = source.match(/class="project-lede">([\s\S]*?)<\/p>/i)?.[1].trim() || '';
-		const image = source.match(/<img[^>]+class="project-post__image"[^>]+src="([^"]+)"/i)?.[1] || '';
-		const tags = [...source.matchAll(/<li>([\s\S]*?)<\/li>/gi)].map((match) => match[1].trim());
+		const title = metadata(source, 'project-title') || id;
+		const description = metadata(source, 'project-description');
+		const image = metadata(source, 'project-image');
+		const tags = [...source.matchAll(/<meta[^>]+name=["']project-tag["'][^>]+content=["']([^"']*)["']/gi)]
+			.map((match) => match[1].trim())
+			.filter(Boolean);
 
 		return { id, title, description, image, tags };
 	});
@@ -40,11 +43,11 @@ module.exports = ({ github, context }) => {
 
 		const buttons = [...tagCounts.values()]
 			.sort((first, second) => first.label.localeCompare(second.label))
-			.map(({ label, count }) => `<button class="filter-button" type="button" data-filter="${escapeHtml(label.toLowerCase())}">${escapeHtml(label)} | ${count}</button>`)
+			.map(({ label, count }) => `<button class="filter-button" type="button" aria-pressed="false" data-filter="${escapeHtml(label.toLowerCase())}">${escapeHtml(label)} | ${count}</button>`)
 			.join('');
 
 		return `<span class="filter-label">Filter by tag</span>
-		<button class="filter-button is-active" type="button" data-filter="all">All projects | ${projectList.length}</button>
+		<button class="filter-button is-active" type="button" aria-pressed="true" data-filter="all">All projects | ${projectList.length}</button>
 		${buttons}`;
 	};
 
