@@ -1,0 +1,8 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "description": "Dependency-free static portfolio site",
+  "scripts": {
+    "generate": "node scripts/generate.js"
+  }
+}

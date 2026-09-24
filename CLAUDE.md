@@ -11,6 +11,7 @@ Keep the site simple, accessible, responsive, and compatible with static hosting
 - `index.html`: home page with about/hero content and generated project cards grouped into categories (see Home Page Categories below).
 - `projects/index.html`: all-project archive with generated cards and multi-tag filtering.
 - `projects/*.html`: individual project pages. Each project page owns its metadata and long-form content.
+- `package.json` / `scripts/generate.js`: local entry point (`npm run generate`) that runs `onPush.js`.
 - `onPush.js`: GitHub-side/build-time generator. Discovers project pages, reads metadata, and regenerates marked card/filter regions.
 - `scripts/projectPage.js`: browser-side project-page metadata hydrator.
 - `scripts/triangularField.js`: browser-side animated canvas background.
@@ -101,7 +102,7 @@ and also regenerates the filter buttons between:
 
 Home cards receive alternating layout classes (`project-card--reverse` on every second card, restarting per category); archive cards stay consistent for scanning.
 
-Important: the generator runs only if the repository's GitHub workflow invokes `onPush.js`. Check `.github/workflows/` before assuming a push automatically regenerates pages. Node.js was unavailable in the local environment during earlier work, so validate the GitHub-side runtime when possible.
+Important: the generator runs only if the repository's GitHub workflow invokes `onPush.js`. Check `.github/workflows/` before assuming a push automatically regenerates pages. Node.js is installed locally: run `npm run generate` (which runs `scripts/generate.js`, a thin wrapper that calls `onPush.js` with null `github`/`context`) to regenerate `index.html` and `projects/index.html` before committing, and commit the generated files together with the source changes so the workflow's "Regenerate project cards and filters" commit has nothing left to do. `onPush.js` must keep working without `github`/`context`. If `node` isn't found in a fresh shell, refresh PATH (`$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')`) or restart VS Code. The generator writes LF line endings; with `core.autocrlf=true` git may report the pages as modified when only line endings differ, so check `git diff --ignore-cr-at-eol` before assuming a real change.
 
 ## Project Archive Filtering
 
@@ -174,6 +175,7 @@ When modifying this script, preserve corner anchors, full-page sizing, multi-sta
 Useful commands:
 
 ```powershell
+npm run generate
 git status
 git diff --check
 git add <files>
@@ -191,7 +193,7 @@ The user wants an intentional, more advanced visual system rather than a generic
 
 ## Validation Notes
 
-Editor diagnostics have passed for the affected HTML, CSS, and JavaScript files during prior changes. Local Node.js was unavailable, so the GitHub/build-time `onPush.js` execution has not been verified locally. Browser-level validation is useful for checking:
+Editor diagnostics have passed for the affected HTML, CSS, and JavaScript files during prior changes. `npm run generate` has been verified locally (output identical to the committed pages). Browser-level validation is useful for checking:
 
 - Full-page background coverage while scrolling.
 - No horizontal scrollbar.
