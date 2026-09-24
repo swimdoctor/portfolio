@@ -3,7 +3,6 @@
     const title = getMeta('project-title');
     const startDate = getMeta('project-start-date') || getMeta('project-date');
     const endDate = getMeta('project-end-date');
-    const type = getMeta('project-type');
     const description = getMeta('project-description');
     const image = getMeta('project-image');
     const imageAlt = getMeta('project-image-alt');
@@ -17,7 +16,7 @@
 
     const eyebrow = document.querySelector('[data-project-field="eyebrow"]');
     const date = endDate ? `${startDate} - ${endDate}` : startDate;
-    if (eyebrow) eyebrow.textContent = `${date} · ${type}`;
+    if (eyebrow) eyebrow.textContent = date;
 
     const tagList = document.querySelector('[data-project-field="tags"]');
     if (tagList) {

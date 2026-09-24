@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title">
+  <title id="title">Placeholder</title>
+  <rect width="800" height="800" fill="#dfe5d8"/>
+  <rect x="90" y="90" width="620" height="620" fill="#17211b"/>
+  <text x="400" y="430" fill="#f3f4ed" font-family="monospace" font-size="64" text-anchor="middle">PLACEHOLDER</text>
+</svg>

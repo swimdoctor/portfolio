@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="../styles/mainStyle.css">
+    <link rel="icon" type="image/png" href="../images/favicon_32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="../images/favicon_16x16.png" sizes="16x16" />
 </head>
 
 <body>
@@ -28,22 +30,23 @@
         <div class="project-toolbar" aria-label="Project filters">
             <!-- project-filters:start -->
             <span class="filter-label">Filter by tag</span>
-            <button class="filter-button is-active" type="button" aria-pressed="true" data-filter="all">All projects | 3</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="c#">C# | 2</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="class project">Class Project | 2</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="game">Game | 1</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="gdscript">GDScript | 1</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="godot">Godot | 1</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="machine learning">Machine Learning | 1</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="monogame">MonoGame | 1</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="personal project">Personal Project | 1</button>
-            <button class="filter-button" type="button" aria-pressed="false" data-filter="unity">Unity | 1</button>
+            <button class="filter-button is-active" type="button" aria-pressed="true" data-label="All projects" data-filter="all">All projects | 3</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="C#" data-filter="c#">C# | 2</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="Class Project" data-filter="class project">Class Project | 2</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="Game" data-filter="game">Game | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="GDScript" data-filter="gdscript">GDScript | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="Godot" data-filter="godot">Godot | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="In Progress" data-filter="in progress">In Progress | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="Machine Learning" data-filter="machine learning">Machine Learning | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="MonoGame" data-filter="monogame">MonoGame | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="Personal Project" data-filter="personal project">Personal Project | 1</button>
+            <button class="filter-button" type="button" aria-pressed="false" data-label="Unity" data-filter="unity">Unity | 1</button>
             <!-- project-filters:end -->
         </div>
         <div class="project-grid" id="project-grid">
             <!-- project-cards:start -->
             <a class="project-card" data-tags="game,c#,monogame,class project" href="CraftUp.html">
-                <img class="project-card__image" src="../images/CraftUp.png" alt="Craft Up">
+                <img class="project-card__image" src="../images/CraftUp.png" alt="Craft Up logo">
                 <div class="project-card__content">
                     <h2>Craft Up</h2>
                     <p>A simple survival crafting game made in MonoGame.</p>
@@ -55,8 +58,8 @@
                     </ul>
                 </div>
             </a>
-            <a class="project-card" data-tags="machine learning,unity,c#,personal project" href="SelfDrivingRacecars.html">
-                <img class="project-card__image" src="../images/SelfDrivingRacecars.svg" alt="Self-Driving Racecars with NEAT">
+            <a class="project-card" data-tags="machine learning,unity,c#,personal project,in progress" href="SelfDrivingRacecars.html">
+                <img class="project-card__image" src="../images/placeholder.svg" alt="Placeholder image">
                 <div class="project-card__content">
                     <h2>Self-Driving Racecars with NEAT</h2>
                     <p>An experiment in evolving autonomous racecars with NeuroEvolution of Augmenting Topologies.</p>
@@ -65,11 +68,12 @@
                         <li>Unity</li>
                         <li>C#</li>
                         <li>Personal Project</li>
+                        <li>In Progress</li>
                     </ul>
                 </div>
             </a>
             <a class="project-card" data-tags="godot,gdscript,game,class project" href="Dadatothmo.html">
-                <img class="project-card__image" src="../images/Dadatothmo.svg" alt="Dadatothmo">
+                <img class="project-card__image" src="../images/placeholder.svg" alt="Placeholder image">
                 <div class="project-card__content">
                     <h2>Dadatothmo</h2>
                     <p>A Godot game project built as part of a class project.</p>
@@ -86,13 +90,28 @@
     </main>
 
     <script>
-        const projectCards = document.querySelectorAll('.project-card');
+        const projectCards = [...document.querySelectorAll('.project-card')];
         const filterToolbar = document.querySelector('.project-toolbar');
+        const filterButtons = [...filterToolbar.querySelectorAll('.filter-button')];
+        const selectedTags = new Set();
 
-        const applyProjectFilter = (filter) => {
+        const cardTags = (card) => card.dataset.tags.split(',').map((tag) => tag.trim().toLowerCase());
+        const matchingCards = (tags) => projectCards.filter((card) => tags.every((tag) => cardTags(card).includes(tag)));
+
+        const updateFilters = () => {
             projectCards.forEach((card) => {
-                const tags = card.dataset.tags.split(',').map((tag) => tag.trim().toLowerCase());
-                card.hidden = filter !== 'all' && !tags.includes(filter);
+                card.hidden = selectedTags.size > 0 && ![...selectedTags].every((tag) => cardTags(card).includes(tag));
+            });
+
+            filterButtons.forEach((button) => {
+                const filter = button.dataset.filter;
+                const candidateTags = filter === 'all' ? [] : [...selectedTags, filter];
+                const count = matchingCards(candidateTags).length;
+                const isSelected = selectedTags.has(filter);
+                button.disabled = filter !== 'all' && !isSelected && count === 0;
+                button.classList.toggle('is-active', filter === 'all' ? selectedTags.size === 0 : isSelected);
+                button.setAttribute('aria-pressed', String(filter === 'all' ? selectedTags.size === 0 : isSelected));
+                button.textContent = `${button.dataset.label} | ${filter === 'all' ? projectCards.length : isSelected ? matchingCards([...selectedTags]).length : count}`;
             });
         };
 
@@ -101,16 +120,15 @@
             if (!button) return;
 
             const filter = button.dataset.filter.trim().toLowerCase();
-            filterToolbar.querySelectorAll('.filter-button').forEach((item) => {
-                const isActive = item === button;
-                item.classList.toggle('is-active', isActive);
-                item.setAttribute('aria-pressed', isActive);
-            });
-            applyProjectFilter(filter);
+            if (filter === 'all') selectedTags.clear();
+            else if (selectedTags.has(filter)) selectedTags.delete(filter);
+            else selectedTags.add(filter);
+            updateFilters();
         });
 
-        filterToolbar.querySelector('.filter-button.is-active')?.setAttribute('aria-pressed', 'true');
+        updateFilters();
     </script>
+    <script src="../scripts/triangularField.js"></script>
 </body>
 
 </html>
