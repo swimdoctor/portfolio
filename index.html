@@ -24,62 +24,96 @@
         <section class="hero" id="about">
             <p class="eyebrow">Developer, designer, and curious builder</p>
             <h1>Hi, I’m Dylan.<br><em>I make things to learn.</em></h1>
-            <p class="hero-copy">This is a growing collection of games, experiments, and projects built from questions I could not leave unanswered.</p>
-            <a class="text-link" href="#recent-projects">Explore my work <span aria-hidden="true">↘</span></a>
+            <p class="hero-copy">This is a growing collection of <a href="#category-games">games</a>, <a href="#category-machine-learning">machine learning projects</a>, and <a href="#category-computer-graphics">computer graphics experiments</a> where I tested my skills and explored new concepts.</p>
         </section>
 
         <section class="project-section" id="recent-projects" aria-labelledby="recent-heading">
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Selected work</p>
-                    <h2 id="recent-heading">Recent projects</h2>
+            <h2 class="section-title" id="recent-heading">Highlighted projects</h2>
+
+            <section class="project-category" id="category-machine-learning" aria-labelledby="category-machine-learning-heading">
+                <div class="section-heading">
+                    <h3 id="category-machine-learning-heading">Machine Learning</h3>
+                    <a class="text-link" href="projects/index.html?tag=machine%20learning">See all Machine Learning Projects <span aria-hidden="true">↗</span></a>
                 </div>
-                <a class="text-link" href="projects/index.html">See all projects <span aria-hidden="true">↗</span></a>
-            </div>
-            <div class="project-grid project-grid--featured">
-                <!-- project-cards:start -->
-                <a class="project-card" data-tags="game,c#,monogame,class project" href="projects/CraftUp.html">
-                    <img class="project-card__image" src="images/CraftUp.png" alt="Craft Up logo">
-                    <div class="project-card__content">
-                        <h2>Craft Up</h2>
-                        <p>A simple survival crafting game made in MonoGame.</p>
-                        <ul class="tag-list" aria-label="Project tags">
-                            <li>Game</li>
-                            <li>C#</li>
-                            <li>MonoGame</li>
-                            <li>Class Project</li>
-                        </ul>
-                    </div>
-                </a>
-                <a class="project-card project-card--reverse" data-tags="machine learning,unity,c#,personal project,in progress" href="projects/SelfDrivingRacecars.html">
-                    <img class="project-card__image" src="images/placeholder.svg" alt="Placeholder image">
-                    <div class="project-card__content">
-                        <h2>Self-Driving Racecars with NEAT</h2>
-                        <p>An experiment in evolving autonomous racecars with NeuroEvolution of Augmenting Topologies.</p>
-                        <ul class="tag-list" aria-label="Project tags">
-                            <li>Machine Learning</li>
-                            <li>Unity</li>
-                            <li>C#</li>
-                            <li>Personal Project</li>
-                            <li>In Progress</li>
-                        </ul>
-                    </div>
-                </a>
-                <a class="project-card" data-tags="godot,gdscript,game,class project" href="projects/Dadatothmo.html">
-                    <img class="project-card__image" src="images/placeholder.svg" alt="Placeholder image">
-                    <div class="project-card__content">
-                        <h2>Dadatothmo</h2>
-                        <p>A Godot game project built as part of a class project.</p>
-                        <ul class="tag-list" aria-label="Project tags">
-                            <li>Godot</li>
-                            <li>GDScript</li>
-                            <li>Game</li>
-                            <li>Class Project</li>
-                        </ul>
-                    </div>
-                </a>
-                <!-- project-cards:end -->
-            </div>
+                <div class="project-grid project-grid--featured">
+                    <!-- project-cards:machine-learning:start -->
+                    <a class="project-card" data-tags="machine learning,python,neural network,class project" href="projects/QuickToDrawQuickToClassify.html">
+                        <img class="project-card__image" src="images/placeholder.svg" alt="Placeholder image">
+                        <div class="project-card__content">
+                            <h2>Quick To Draw, Quick To Classify</h2>
+                            <p>A neural network that classifies quick, hand-drawn sketches, built as a class project in Python.</p>
+                            <ul class="tag-list" aria-label="Project tags">
+                                <li>Machine Learning</li>
+                                <li>Python</li>
+                                <li>Neural Network</li>
+                                <li>Class Project</li>
+                            </ul>
+                        </div>
+                    </a>
+                    <a class="project-card project-card--reverse" data-tags="machine learning,unity,c#,personal project,in progress" href="projects/SelfDrivingRacecars.html">
+                        <img class="project-card__image" src="images/placeholder.svg" alt="Placeholder image">
+                        <div class="project-card__content">
+                            <h2>Self-Driving Racecars with NEAT</h2>
+                            <p>An experiment in evolving autonomous racecars with NeuroEvolution of Augmenting Topologies.</p>
+                            <ul class="tag-list" aria-label="Project tags">
+                                <li>Machine Learning</li>
+                                <li>Unity</li>
+                                <li>C#</li>
+                                <li>Personal Project</li>
+                                <li>In Progress</li>
+                            </ul>
+                        </div>
+                    </a>
+                    <!-- project-cards:machine-learning:end -->
+                </div>
+            </section>
+
+            <section class="project-category" id="category-games" aria-labelledby="category-games-heading">
+                <div class="section-heading">
+                    <h3 id="category-games-heading">Games</h3>
+                    <a class="text-link" href="projects/index.html?tag=game">See all Game Projects <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="project-grid project-grid--featured">
+                    <!-- project-cards:games:start -->
+                    <a class="project-card" data-tags="game,c#,monogame,class project" href="projects/CraftUp.html">
+                        <img class="project-card__image" src="images/CraftUp.png" alt="Craft Up logo">
+                        <div class="project-card__content">
+                            <h2>Craft Up</h2>
+                            <p>A simple survival crafting game made in MonoGame.</p>
+                            <ul class="tag-list" aria-label="Project tags">
+                                <li>Game</li>
+                                <li>C#</li>
+                                <li>MonoGame</li>
+                                <li>Class Project</li>
+                            </ul>
+                        </div>
+                    </a>
+                    <!-- project-cards:games:end -->
+                </div>
+            </section>
+
+            <section class="project-category" id="category-computer-graphics" aria-labelledby="category-computer-graphics-heading">
+                <div class="section-heading">
+                    <h3 id="category-computer-graphics-heading">Computer Graphics</h3>
+                    <a class="text-link" href="projects/index.html?tag=computer%20graphics">See all Computer Graphics Projects <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="project-grid project-grid--featured">
+                    <!-- project-cards:computer-graphics:start -->
+                    <a class="project-card" data-tags="computer graphics,shadertoy,glsl" href="projects/RaytracingShader.html">
+                        <img class="project-card__image" src="images/placeholder.svg" alt="Placeholder image">
+                        <div class="project-card__content">
+                            <h2>Raytracing Shader</h2>
+                            <p>A real-time raytracing shader written in GLSL on Shadertoy.</p>
+                            <ul class="tag-list" aria-label="Project tags">
+                                <li>Computer Graphics</li>
+                                <li>Shadertoy</li>
+                                <li>GLSL</li>
+                            </ul>
+                        </div>
+                    </a>
+                    <!-- project-cards:computer-graphics:end -->
+                </div>
+            </section>
         </section>
     </main>
 
