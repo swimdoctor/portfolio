@@ -3,10 +3,17 @@
     const context = canvas.getContext('2d');
     const points = [];
     const spacing = 150;
+    const driftRange = 28;
+    // Only points (and the triangles around them) within this fraction of the
+    // viewport height above/below the viewport are animated and redrawn.
+    const viewportMargin = 0.2;
+    // A cell only switches diagonal once the alternative is clearly better, so
+    // near-ties don't flicker between the two.
+    const diagonalFlipThreshold = 1e4;
+    const gradientSteps = 1024;
     const gradientStops = [
-        { position: 0, color: '#F1FFE7' },
-        { position: 0.25, color: '#C2E7DA' },
-        { position: 0.70, color: '#6290C3' },
+        { position: 0, color: '#C2E7DA' },
+        { position: 0.35, color: '#6290C3' },
         { position: 1, color: '#1A1B41' }
     ];
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -14,8 +21,10 @@
     let rows = 0;
     let pageWidth = 0;
     let pageHeight = 0;
-    let nextPointIndex = 0;
     let animationFrame;
+    let needsRedraw = true;
+    // One flag per grid cell: 0 splits it top-left/bottom-right, 1 top-right/bottom-left.
+    let diagonals = new Uint8Array(0);
 
     canvas.className = 'point-field';
     canvas.setAttribute('aria-hidden', 'true');
@@ -35,16 +44,27 @@
         return measured;
     };
 
+    // Rounding (rather than ceiling) keeps the last row/column between half
+    // and one-and-a-half spacings from its neighbor, so a sliver-thin final
+    // cell can never be folded over by its neighbor's drift.
+    const columnCountForWidth = () => Math.max(2, Math.round(pageWidth / spacing) + 1);
+    const rowCountForHeight = () => Math.max(2, Math.round(pageHeight / spacing) + 1);
+
+    // Edge points may only slide along their edge (left/right column keep x,
+    // top/bottom row keep y) so the mesh hull always equals the page rectangle
+    // and no background shows through at the borders. Corners are both.
+    const applyPinning = (point, totalRows) => {
+        point.lockX = point.column === 0 || point.column === columns - 1;
+        point.lockY = point.row === 0 || point.row === totalRows - 1;
+    };
+
     const createPoint = (row, column, totalRows) => {
-        const isFirstColumn = column === 0;
         const isLastColumn = column === columns - 1;
-        const isFirstRow = row === 0;
         const isLastRow = row === totalRows - 1;
-        const isFixedCorner = (isFirstColumn || isLastColumn) && (isFirstRow || isLastRow);
         const pointX = isLastColumn ? pageWidth : column * spacing;
         const pointY = isLastRow ? pageHeight : row * spacing;
 
-        return {
+        const point = {
             x: pointX,
             y: pointY,
             originX: pointX,
@@ -52,48 +72,49 @@
             velocityX: randomBetween(-0.18, 0.18),
             velocityY: randomBetween(-0.18, 0.18),
             phase: randomBetween(0, Math.PI * 2),
-            isFixed: isFixedCorner,
             row,
-            column,
-            index: nextPointIndex += 1
+            column
         };
+        applyPinning(point, totalRows);
+        return point;
     };
 
+    // Points are stored row-major, so the point at (row, column) is
+    // points[row * columns + column].
     // Full rebuild: used when the column count changes (page width changed),
     // since every row's x-positions and fixed corners depend on it.
     const rebuildGrid = () => {
-        columns = Math.ceil(pageWidth / spacing) + 1;
-        rows = Math.ceil(pageHeight / spacing) + 1;
+        columns = columnCountForWidth();
+        rows = rowCountForHeight();
         points.length = 0;
         for (let row = 0; row < rows; row += 1) {
             for (let column = 0; column < columns; column += 1) {
                 points.push(createPoint(row, column, rows));
             }
         }
+        diagonals = new Uint8Array((rows - 1) * (columns - 1));
     };
 
-    // Recomputes which points in `row` should be pinned as bottom/top corners
-    // for a grid that now has `totalRows` rows, snapping the bottom row to
-    // the current page height.
-    const restampRow = (row, totalRows) => {
-        points.filter((point) => point.row === row).forEach((point) => {
-            const isFirstColumn = point.column === 0;
-            const isLastColumn = point.column === columns - 1;
-            const isFirstRow = row === 0;
-            const isLastRow = row === totalRows - 1;
-            point.isFixed = (isFirstColumn || isLastColumn) && (isFirstRow || isLastRow);
-            if (isLastRow) {
+    // Recomputes which points in `row` should be pinned as bottom/top edge
+    // points for the current row count, snapping the bottom row to the
+    // current page height.
+    const restampRow = (row) => {
+        if (row < 0 || row >= rows) return;
+        for (let column = 0; column < columns; column += 1) {
+            const point = points[row * columns + column];
+            applyPinning(point, rows);
+            if (row === rows - 1) {
                 point.y = pageHeight;
                 point.originY = pageHeight;
             }
-        });
+        }
     };
 
     // Height-only change (e.g. filtering hides cards): append new rows at the
     // bottom when the page grew, or crop rows off the bottom when it
     // shrank, instead of rebuilding the whole mesh and losing its motion.
     const syncRows = () => {
-        const targetRows = Math.ceil(pageHeight / spacing) + 1;
+        const targetRows = rowCountForHeight();
         const previousLastRow = rows - 1;
 
         if (targetRows > rows) {
@@ -103,14 +124,16 @@
                 }
             }
         } else if (targetRows < rows) {
-            for (let index = points.length - 1; index >= 0; index -= 1) {
-                if (points[index].row >= targetRows) points.splice(index, 1);
-            }
+            points.length = targetRows * columns;
         }
 
         rows = targetRows;
-        restampRow(previousLastRow, rows);
-        restampRow(rows - 1, rows);
+        const resizedDiagonals = new Uint8Array((rows - 1) * (columns - 1));
+        resizedDiagonals.set(diagonals.subarray(0, Math.min(resizedDiagonals.length, diagonals.length)));
+        diagonals = resizedDiagonals;
+
+        restampRow(previousLastRow);
+        restampRow(rows - 1);
     };
 
     const resizeCanvas = () => {
@@ -129,77 +152,41 @@
 
         if (widthChanged || points.length === 0) rebuildGrid();
         else syncRows();
+        needsRedraw = true;
     };
 
-    const getCircumcircle = (firstPoint, secondPoint, thirdPoint) => {
-        const determinant = 2 * (
-            firstPoint.x * (secondPoint.y - thirdPoint.y) +
-            secondPoint.x * (thirdPoint.y - firstPoint.y) +
-            thirdPoint.x * (firstPoint.y - secondPoint.y)
-        );
-        if (Math.abs(determinant) < 0.00001) return { x: 0, y: 0, radiusSquared: Infinity };
+    // Which of a cell's two diagonals to draw, given its corners in order
+    // (top-left, top-right, bottom-right, bottom-left): the Delaunay one, i.e.
+    // the diagonal whose triangles' circumcircles don't contain the fourth
+    // corner. That is exactly what a full Delaunay triangulation picks for
+    // this near-grid of points, at a tiny fraction of the cost. If the cell
+    // is not convex, only one diagonal lies inside it, so that one is forced.
+    const side = (from, to, point) => (to.x - from.x) * (point.y - from.y) - (to.y - from.y) * (point.x - from.x);
+    const chooseDiagonal = (topLeft, topRight, bottomRight, bottomLeft, current) => {
+        const backSlashValid = side(topLeft, bottomRight, topRight) * side(topLeft, bottomRight, bottomLeft) < 0;
+        const forwardSlashValid = side(topRight, bottomLeft, topLeft) * side(topRight, bottomLeft, bottomRight) < 0;
+        if (backSlashValid !== forwardSlashValid) return backSlashValid ? 0 : 1;
 
-        const firstSquared = firstPoint.x ** 2 + firstPoint.y ** 2;
-        const secondSquared = secondPoint.x ** 2 + secondPoint.y ** 2;
-        const thirdSquared = thirdPoint.x ** 2 + thirdPoint.y ** 2;
-        const centerX = (firstSquared * (secondPoint.y - thirdPoint.y) + secondSquared * (thirdPoint.y - firstPoint.y) + thirdSquared * (firstPoint.y - secondPoint.y)) / determinant;
-        const centerY = (firstSquared * (thirdPoint.x - secondPoint.x) + secondSquared * (firstPoint.x - thirdPoint.x) + thirdSquared * (secondPoint.x - firstPoint.x)) / determinant;
-        const distanceX = centerX - firstPoint.x;
-        const distanceY = centerY - firstPoint.y;
+        const ax = topLeft.x - bottomLeft.x;
+        const ay = topLeft.y - bottomLeft.y;
+        const bx = topRight.x - bottomLeft.x;
+        const by = topRight.y - bottomLeft.y;
+        const cx = bottomRight.x - bottomLeft.x;
+        const cy = bottomRight.y - bottomLeft.y;
+        const inCircle = (
+            (ax * ax + ay * ay) * (bx * cy - cx * by) -
+            (bx * bx + by * by) * (ax * cy - cx * ay) +
+            (cx * cx + cy * cy) * (ax * by - bx * ay)
+        ) * Math.sign(side(topLeft, topRight, bottomRight));
 
-        return { x: centerX, y: centerY, radiusSquared: distanceX ** 2 + distanceY ** 2 };
-    };
-
-    const triangleFromPoints = (firstPoint, secondPoint, thirdPoint) => ({
-        firstPoint,
-        secondPoint,
-        thirdPoint,
-        circumcircle: getCircumcircle(firstPoint, secondPoint, thirdPoint)
-    });
-
-    const containsPoint = (triangle, point) => {
-        const distanceX = triangle.circumcircle.x - point.x;
-        const distanceY = triangle.circumcircle.y - point.y;
-        return distanceX ** 2 + distanceY ** 2 <= triangle.circumcircle.radiusSquared;
-    };
-
-    const edgeKey = (firstPoint, secondPoint) => [firstPoint.index, secondPoint.index].sort((first, second) => first - second).join(':');
-
-    const triangulate = () => {
-        const superTrianglePadding = Math.max(pageWidth, pageHeight) * 4;
-        const superTriangle = [
-            { x: -superTrianglePadding, y: pageHeight + superTrianglePadding, index: -1 },
-            { x: pageWidth / 2, y: -superTrianglePadding, index: -2 },
-            { x: pageWidth + superTrianglePadding, y: pageHeight + superTrianglePadding, index: -3 }
-        ];
-        let triangles = [triangleFromPoints(...superTriangle)];
-
-        points.forEach((point) => {
-            const badTriangles = triangles.filter((triangle) => containsPoint(triangle, point));
-            const boundaryEdges = new Map();
-
-            badTriangles.forEach((triangle) => {
-                [[triangle.firstPoint, triangle.secondPoint], [triangle.secondPoint, triangle.thirdPoint], [triangle.thirdPoint, triangle.firstPoint]].forEach(([firstPoint, secondPoint]) => {
-                    const key = edgeKey(firstPoint, secondPoint);
-                    const edge = boundaryEdges.get(key);
-                    if (edge) edge.count += 1;
-                    else boundaryEdges.set(key, { firstPoint, secondPoint, count: 1 });
-                });
-            });
-
-            triangles = triangles.filter((triangle) => !badTriangles.includes(triangle));
-            boundaryEdges.forEach((edge) => {
-                if (edge.count === 1) triangles.push(triangleFromPoints(edge.firstPoint, edge.secondPoint, point));
-            });
-        });
-
-        return triangles.filter((triangle) => [triangle.firstPoint, triangle.secondPoint, triangle.thirdPoint].every((point) => point.index >= 0));
+        if (inCircle > diagonalFlipThreshold) return 1;
+        if (inCircle < -diagonalFlipThreshold) return 0;
+        return current;
     };
 
     const hexToRgb = (hexColor) => [1, 3, 5].map((index) => parseInt(hexColor.slice(index, index + 2), 16));
     const rgbToHex = (red, green, blue) => `#${[red, green, blue].map((value) => Math.round(value).toString(16).padStart(2, '0')).join('')}`;
-    const colorAtHeight = (height) => {
-        const amount = Math.max(0, Math.min(1, height / pageHeight));
+    const colorAtAmount = (amount) => {
         const upperStop = gradientStops.find((stop) => stop.position >= amount) || gradientStops[gradientStops.length - 1];
         const upperIndex = gradientStops.indexOf(upperStop);
         const lowerStop = gradientStops[Math.max(0, upperIndex - 1)];
@@ -214,8 +201,15 @@
         );
     };
 
-    const drawTriangle = (triangle) => {
-        const { firstPoint, secondPoint, thirdPoint } = triangle;
+    // The gradient depends only on the normalized page position, so it is
+    // sampled once here instead of being recomputed for every triangle.
+    const gradientLookup = Array.from({ length: gradientSteps }, (_, step) => colorAtAmount(step / (gradientSteps - 1)));
+    const colorAtHeight = (height) => {
+        const amount = Math.max(0, Math.min(1, height / pageHeight));
+        return gradientLookup[Math.round(amount * (gradientSteps - 1))];
+    };
+
+    const drawTriangle = (firstPoint, secondPoint, thirdPoint) => {
         const centerY = (firstPoint.y + secondPoint.y + thirdPoint.y) / 3;
         context.beginPath();
         context.moveTo(firstPoint.x, firstPoint.y);
@@ -226,30 +220,72 @@
         context.fill();
     };
 
-    const updatePoints = (time) => {
-        points.forEach((point) => {
-            if (prefersReducedMotion || point.isFixed) return;
-            point.x += point.velocityX;
-            point.y += point.velocityY;
-            point.x += Math.sin(time * 0.00025 + point.phase) * 0.08;
-            point.y += Math.cos(time * 0.0002 + point.phase) * 0.08;
+    const drawCell = (row, column) => {
+        const topLeft = points[row * columns + column];
+        const topRight = points[row * columns + column + 1];
+        const bottomLeft = points[(row + 1) * columns + column];
+        const bottomRight = points[(row + 1) * columns + column + 1];
+        const cellIndex = row * (columns - 1) + column;
+        const diagonal = chooseDiagonal(topLeft, topRight, bottomRight, bottomLeft, diagonals[cellIndex]);
+        diagonals[cellIndex] = diagonal;
 
-            if (point.x < point.originX - 28 || point.x > point.originX + 28) point.velocityX *= -1;
-            if (point.y < point.originY - 28 || point.y > point.originY + 28) point.velocityY *= -1;
-        });
+        if (diagonal) {
+            drawTriangle(topLeft, topRight, bottomLeft);
+            drawTriangle(topRight, bottomRight, bottomLeft);
+        } else {
+            drawTriangle(topLeft, topRight, bottomRight);
+            drawTriangle(topLeft, bottomRight, bottomLeft);
+        }
     };
 
+    const rowAtHeight = (height) => Math.max(0, Math.min(rows - 1, Math.floor(height / spacing)));
+
+    const updatePoints = (time, firstRow, lastRow) => {
+        for (let index = firstRow * columns; index < (lastRow + 1) * columns; index += 1) {
+            const point = points[index];
+            if (!point.lockX) {
+                point.x += point.velocityX + Math.sin(time * 0.00025 + point.phase) * 0.08;
+                if (point.x < point.originX - driftRange || point.x > point.originX + driftRange) point.velocityX *= -1;
+            }
+            if (!point.lockY) {
+                point.y += point.velocityY + Math.cos(time * 0.0002 + point.phase) * 0.08;
+                if (point.y < point.originY - driftRange || point.y > point.originY + driftRange) point.velocityY *= -1;
+            }
+        }
+    };
+
+    // Only the band around the viewport is moved and repainted. Points outside
+    // it stay put, and so does the pixel content already painted there, until
+    // scrolling brings that part of the page back into the band.
     const drawField = (time) => {
-        context.clearRect(0, 0, pageWidth, pageHeight);
-        updatePoints(time);
-
-        triangulate().forEach(drawTriangle);
-
         animationFrame = window.requestAnimationFrame(drawField);
+        if (prefersReducedMotion && !needsRedraw) return;
+        needsRedraw = false;
+
+        const margin = window.innerHeight * viewportMargin;
+        const bandTop = Math.max(0, Math.floor(window.scrollY - margin));
+        const bandBottom = Math.min(pageHeight, Math.ceil(window.scrollY + window.innerHeight + margin));
+        // Points can drift `driftRange` off their row, so widen the band by a
+        // row on each side to be sure every cell touching it gets redrawn.
+        const firstRow = Math.max(0, rowAtHeight(bandTop) - 1);
+        const lastRow = Math.min(rows - 1, rowAtHeight(bandBottom) + 2);
+
+        if (!prefersReducedMotion) updatePoints(time, firstRow, lastRow);
+
+        context.save();
+        context.beginPath();
+        context.rect(0, bandTop, pageWidth, bandBottom - bandTop);
+        context.clip();
+        context.clearRect(0, bandTop, pageWidth, bandBottom - bandTop);
+        for (let row = Math.max(0, firstRow - 1); row <= Math.min(rows - 2, lastRow); row += 1) {
+            for (let column = 0; column < columns - 1; column += 1) drawCell(row, column);
+        }
+        context.restore();
     };
 
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('load', resizeCanvas);
+    window.addEventListener('scroll', () => { needsRedraw = true; }, { passive: true });
     if (window.ResizeObserver) new ResizeObserver(resizeCanvas).observe(document.body);
     resizeCanvas();
     animationFrame = window.requestAnimationFrame(drawField);

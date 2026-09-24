@@ -150,9 +150,11 @@ Relevant classes include `project-card`, `project-card--reverse`, `project-card-
 `scripts/triangularField.js` creates a canvas behind the content:
 
 - Moving points are independently animated.
-- A Delaunay-style triangulation is recomputed every frame.
+- Points sit on a jittered grid (row-major in `points`), and each grid cell is split into two triangles. Each cell independently picks the Delaunay diagonal (incircle test, with hysteresis and a convexity guard) when it is drawn, so triangulation changes are naturally desynchronized and cost ~0.03 ms/frame (the previous full Bowyer-Watson pass cost 8-13 ms/frame on tall pages and produced identical triangles).
+- Only the band within 20% of the viewport height above/below the viewport is animated and repainted (clipped `clearRect` + cell redraw); points and pixels outside it stay frozen until scrolled into range. Reduced-motion mode repaints only on resize/scroll.
+- Edge points are locked to their edge (left/right column keep x, top/bottom row keep y) so the mesh always fills the page rectangle; corners are fully fixed.
 - Triangle fills are solid colors, not per-triangle gradients.
-- Color is selected from a global vertical multi-stage gradient using the triangle centroid Y-position.
+- Color is selected from a global vertical multi-stage gradient using the triangle centroid Y-position, via a precomputed 1024-step lookup table built from `gradientStops`.
 - `gradientStops` is an ordered array with normalized positions from `0` at the top to `1` at the bottom.
 - Four exact fixed points anchor the document corners.
 - Canvas height follows the full document height.
@@ -160,6 +162,8 @@ Relevant classes include `project-card`, `project-card--reverse`, `project-card-
 - Reduced-motion preference stops point movement while preserving the static mesh.
 - The canvas is loaded by all pages and styled as `.point-field`.
 - `html { overflow-x: hidden; }` prevents residual horizontal overflow.
+
+Known limit (not currently a problem): the canvas is sized to the full document at up to 2x pixel ratio. Browsers cap canvas size (roughly 32,767 px per side on desktop Chrome/Firefox, so ~16,000 CSS px of page height at 2x; iOS Safari's ~16.7M px area limit means ~10,000 CSS px on a 390px-wide phone), and memory grows well before that (~370 MB at 1440x16000, 2x). Past the limit the canvas goes blank silently. If pages ever get that tall, the planned fix is: make the canvas viewport-sized and `position: fixed`, and in `drawField` translate the context by `-scrollY` (`context.translate(0, -window.scrollY)`, with the clip/clear band expressed in viewport coordinates) so only the visible slice is ever backed by pixels. `drawField` already computes the visible band (`bandTop`/`bandBottom`), so the change is mostly sizing in `resizeCanvas` plus the translate; the mesh, gradient (still keyed to `pageHeight`), and edge locking stay as they are. Redraw every frame or on scroll, since pixels outside the viewport are no longer retained.
 
 When modifying this script, preserve corner anchors, full-page sizing, multi-stage gradient interpolation, and no-horizontal-scroll behavior.
 
